@@ -42,21 +42,20 @@ app.get("/statement", varifyIfExistsAccountCpf, (request, response) => {
   return response.json(customer.statement);
 });
 
-/*
+app.post("/deposit", varifyIfExistsAccountCpf, (request, response) => {
+  const { description, amount } = request.body;
+  const { customer } = request;
 
-app.put('/courses/:id', (request, response) => {
-    const params = request.params;
-    return response.json(params.id);
-});
+  const statementOperation = {
+    description,
+    amount,
+    created_at: new Date(),
+    type: "credit",
+  };
+  customer.statement.push(statementOperation);
 
-app.patch('/courses/:id', (request, response) => {
-    return response.json(["corse 1","course 2"]);
+  return response.status(201).send();
 });
-
-app.delete('/courses/:id', (request, response) => {
-    return response.json(["corse 1","course 2"]);
-});
- */
 
 //add a porta
 app.listen(3333);
