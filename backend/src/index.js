@@ -7,6 +7,20 @@ app.use(express.json());
 
 const customers = [];
 
+//Middleware
+
+function varifyIfExistsAccountCpf(request, response, next) {
+  const { cpf } = request.headers;
+
+  const customer = customers.find((customer) => customer.cpf == cpf);
+
+  if (!customer) {
+    return response.status(400).json({ error: "Customers not found!" });
+  }
+  request.customer = customer;
+  return next();
+}
+
 app.post("/account", (request, response) => {
   const { cpf, name } = request.body;
   const customerAlreadyExists = customers.some(
@@ -21,12 +35,10 @@ app.post("/account", (request, response) => {
   return response.status(201).send();
 });
 
-app.get("/statement", (request, response) => {
-  const { cpf } = request.headers;
-  const customer = customers.find((customer) => customer.cpf == cpf);
-  if (!customer) {
-    return response.status(400).json({ error: "Customers not found!" });
-  }
+// app.use(varifyIfExistsAccountCpf) todos os metodos que estão abaixo vai fazer essa validação
+app.get("/statement", varifyIfExistsAccountCpf, (request, response) => {
+  const { customer } = request;
+
   return response.json(customer.statement);
 });
 
